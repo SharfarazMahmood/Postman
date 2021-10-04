@@ -13,10 +13,18 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Postman',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.cyan,
+        backgroundColor: Colors.cyan,
+        accentColor: Colors.limeAccent,
+        accentColorBrightness: Brightness.light,
+        buttonTheme: ButtonTheme.of(context).copyWith(
+            buttonColor: Colors.cyan,
+            textTheme: ButtonTextTheme.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            )),
       ),
       home: AuthScreen(),
     );
   }
 }
-
