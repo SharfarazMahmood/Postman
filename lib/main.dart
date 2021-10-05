@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:postman/screens/auth_screen.dart';
 import 'package:postman/screens/chat_screen.dart';
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.cyan,
         backgroundColor: Colors.cyan,
-        accentColor: Colors.limeAccent,
+        accentColor: Colors.tealAccent,
         accentColorBrightness: Brightness.light,
         buttonTheme: ButtonTheme.of(context).copyWith(
             buttonColor: Colors.cyan,
@@ -24,7 +25,15 @@ class MyApp extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             )),
       ),
-      home: AuthScreen(),
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.onAuthStateChanged,
+        builder: (ctx, userSnapshot) {
+          if (userSnapshot.hasData) {
+            return ChatScreen();
+          }
+          return AuthScreen();
+        },
+      ),
     );
   }
 }

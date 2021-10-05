@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
 class Authform extends StatefulWidget {
+  final bool isLoading;
   final void Function(
     String email,
     String username,
     String password,
     bool isLogin,
+    BuildContext ctx,
   ) submitFunc;
   const Authform({
     Key key,
     this.submitFunc,
+    this.isLoading,
   }) : super(key: key);
 
   @override
@@ -29,10 +32,11 @@ class _AuthformState extends State<Authform> {
     if (isValid) {
       _formKey.currentState.save();
       widget.submitFunc(
-        _userEmail,
-        _userName,
+        _userEmail.trim(),
+        _userName.trim(),
         _userPassword,
         _isLogin,
+        context,
       );
 
       // use these values to sent to auth request............
@@ -112,20 +116,23 @@ class _AuthformState extends State<Authform> {
                     },
                   ),
                   const SizedBox(height: 12),
-                  RaisedButton(
-                    child: Text(_isLogin ? "Login" : 'Signup'),
-                    onPressed: _trySubmit,
-                  ),
-                  TextButton(
-                    child: Text(_isLogin
-                        ? 'Create new account'
-                        : 'Already have an acoount'),
-                    onPressed: () {
-                      setState(() {
-                        _isLogin = !_isLogin;
-                      });
-                    },
-                  ),
+                  if (widget.isLoading) const CircularProgressIndicator(),
+                  if (!widget.isLoading)
+                    RaisedButton(
+                      child: Text(_isLogin ? "Login" : 'Signup'),
+                      onPressed: _trySubmit,
+                    ),
+                  if (!widget.isLoading)
+                    TextButton(
+                      child: Text(_isLogin
+                          ? 'Create new account'
+                          : 'Already have an acoount'),
+                      onPressed: () {
+                        setState(() {
+                          _isLogin = !_isLogin;
+                        });
+                      },
+                    ),
                 ],
               ),
             ),
