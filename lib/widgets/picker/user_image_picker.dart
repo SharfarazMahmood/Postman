@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UserImagePicker extends StatefulWidget {
+  final Function(File pickedImage) imagePickedFnc;
+
+  const UserImagePicker({this.imagePickedFnc});
   @override
   _UserImagePickerState createState() => _UserImagePickerState();
 }
@@ -10,43 +13,50 @@ class UserImagePicker extends StatefulWidget {
 class _UserImagePickerState extends State<UserImagePicker> {
   File _pickedImage;
 
-  void _pickImage() async {
-    // ImagePicker.pickImage();
-    // final ImageSource source = await _selectOption();
-    final picker = ImagePicker();
-    final pickedImage = await picker.getImage(source: ImageSource.gallery);
-    final pickedImageFile = File(pickedImage.path);
+  void _pickImage(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final pickedImage = await picker.getImage(
+        source: source,
+        imageQuality: 50,
+        maxWidth: 200,
+      );
+      final pickedImageFile = File(pickedImage.path);
 
-    setState(() {
-      _pickedImage = pickedImageFile;
-    });
+      setState(() {
+        _pickedImage = pickedImageFile;
+      });
+      widget.imagePickedFnc(pickedImageFile);
+    } catch (error) {
+      // TODO
+      // print(error);
+    }
   }
 
-  // Future<ImageSource> _selectOption() async {
-  //   ImageSource selectedOption;
-  //    await showDialog(
-  //     context: context,
-  //     builder: (ctx) => AlertDialog(
-  //       title: const Text('Pick Image From'),
-  //       actions: <Widget>[
-  //         TextButton(
-  //           child: const Text('Gallery'),
-  //           onPressed: () {
-  //             selectedOption = ImageSource.gallery;
-  //           },
-  //         ),
-  //         TextButton(
-  //           child: const Text('Camera'),
-  //           onPressed: () {
-  //             selectedOption = ImageSource.camera;
-  //           },
-  //         )
-  //       ],
-  //     ),
-  //   );
-  //
-  //   return selectedOption;
-  // }
+  _selectImage() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Pick Image From'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Gallery'),
+            onPressed: () {
+              _pickImage(ImageSource.gallery);
+              Navigator.of(context).pop();
+            },
+          ),
+          TextButton(
+            child: const Text('Camera'),
+            onPressed: () {
+              _pickImage(ImageSource.camera);
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +69,7 @@ class _UserImagePickerState extends State<UserImagePicker> {
               _pickedImage != null ? FileImage(_pickedImage) : null,
         ),
         TextButton.icon(
-          onPressed: _pickImage,
+          onPressed: _selectImage,
           icon: const Icon(Icons.image),
           label: Text(
             'Add Image',

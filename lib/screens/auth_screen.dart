@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 
 import 'package:postman/widgets/auth/auth_form.dart';
@@ -14,13 +17,14 @@ class _AuthScreenState extends State<AuthScreen> {
   final _auth = FirebaseAuth.instance;
   var _isLoading = false;
 
-  void _submitAuthForm(
+  void _submitAuthForm({
     String email,
     String username,
     String password,
+    File userImage,
     bool isLogin,
     BuildContext ctx,
-  ) async {
+  }) async {
     AuthResult authResult;
     try {
       setState(() {
@@ -37,12 +41,23 @@ class _AuthScreenState extends State<AuthScreen> {
           email: email,
           password: password,
         );
+
+        ////// .......... Image upload
+        final StorageReference ref = FirebaseStorage.instance
+            .ref()
+            .child('user_images')
+            .child(authResult.user.uid + '.jpg');
+        await ref.putFile(userImage).onComplete;
+        final url = ( await ref.getDownloadURL()).toString() ;
+        // print(url);
+
         await Firestore.instance
             .collection('users')
             .document(authResult.user.uid)
             .setData({
           'username': username,
           'email': email,
+          'image_url': url,
         });
       }
 
@@ -65,10 +80,10 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
       );
     } catch (error) {
+      print(error);
       setState(() {
         _isLoading = false;
       });
-      print(error);
     }
   }
 

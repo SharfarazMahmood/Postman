@@ -1,15 +1,20 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:postman/widgets/picker/user_image_picker.dart';
 
 class Authform extends StatefulWidget {
   final bool isLoading;
-  final void Function(
+  final void Function({
     String email,
     String username,
     String password,
+    File userImage,
     bool isLogin,
     BuildContext ctx,
-  ) submitFunc;
+  }) submitFunc;
+
+
   const Authform({
     Key key,
     this.submitFunc,
@@ -26,18 +31,33 @@ class _AuthformState extends State<Authform> {
   String _userEmail = '';
   String _userName = '';
   String _userPassword = '';
+  File _userImageFile;
+
+  void _pickedImage(File image) {
+    _userImageFile = image;
+  }
 
   void _trySubmit() {
     final isValid = _formKey.currentState.validate();
     FocusScope.of(context).unfocus();
+    if ( !_isLogin  && _userImageFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text("Please pick an image"),
+          backgroundColor: Theme.of(context).errorColor,
+        ),
+      );
+      return;
+    }
     if (isValid) {
       _formKey.currentState.save();
       widget.submitFunc(
-        _userEmail.trim(),
-        _userName.trim(),
-        _userPassword,
-        _isLogin,
-        context,
+        email: _userEmail.trim(),
+        username: _userName.trim(),
+        userImage: _userImageFile,
+        password: _userPassword,
+        isLogin: _isLogin,
+        ctx: context,
       );
 
       // use these values to sent to auth request............
@@ -57,7 +77,7 @@ class _AuthformState extends State<Authform> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  if (!_isLogin) UserImagePicker(),
+                  if (!_isLogin) UserImagePicker(imagePickedFnc: _pickedImage),
                   TextFormField(
                     key: const ValueKey('email'),
                     validator: (value) {
