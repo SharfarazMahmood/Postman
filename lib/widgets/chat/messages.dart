@@ -6,21 +6,22 @@ import 'package:postman/widgets/chat/message_bubble.dart';
 class Messages extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: FirebaseAuth.instance.currentUser(),
-      builder: (ctx, futureSnapshot) {
-        if (futureSnapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-        if (!futureSnapshot.hasData) {
-          return const Center(
-            child: Text('No messages found!'),
-          );
-        }
+    final user = FirebaseAuth.instance.currentUser;
+    // return FutureBuilder(
+    //   future: FirebaseAuth.instance.currentUser(),
+    //   builder: (ctx, futureSnapshot) {
+    //     if (futureSnapshot.connectionState == ConnectionState.waiting) {
+    //       return const Center(
+    //         child: CircularProgressIndicator(),
+    //       );
+    //     }
+    //     if (!futureSnapshot.hasData) {
+    //       return const Center(
+    //         child: Text('No messages found!'),
+    //       );
+    //     }
         return StreamBuilder(
-          stream: Firestore.instance
+          stream: FirebaseFirestore.instance
               .collection('chat')
               .orderBy(
                 'createdAt',
@@ -33,21 +34,21 @@ class Messages extends StatelessWidget {
                 child: CircularProgressIndicator(),
               );
             }
-            final chatDocs = chatSnapshot.data.documents;
+            final chatDocs = chatSnapshot.data.docs;
             return ListView.builder(
               reverse: true,
               itemCount: chatDocs.length,
               itemBuilder: (ctx, index) => MessageBubble(
-                message: chatDocs[index]['text'],
-                username: chatDocs[index]['username'],
-                userImage: chatDocs[index]['userImage'],
-                isMe: chatDocs[index]['userId'] == futureSnapshot.data.uid,
-                key: ValueKey(chatDocs[index].documentID),
+                message: chatDocs[index].data()['text'],
+                username: chatDocs[index].data()['username'],
+                userImage: chatDocs[index].data()['userImage'],
+                isMe: chatDocs[index].data()['userId'] == user.uid,
+                key: ValueKey(chatDocs[index].id),
               ),
             );
           },
         );
-      },
-    );
+    //   },
+    // );
   }
 }

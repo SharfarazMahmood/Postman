@@ -90,6 +90,8 @@ class _AuthformState extends State<Authform> {
                       return null;
                     },
                     keyboardType: TextInputType.emailAddress,
+                    autocorrect: false,
+                    textCapitalization: TextCapitalization.none,
                     decoration: const InputDecoration(
                       labelText: "Email",
                     ),
@@ -110,6 +112,8 @@ class _AuthformState extends State<Authform> {
                         }
                         return null;
                       },
+                      autocorrect: false,
+                      textCapitalization: TextCapitalization.none,
                       decoration: const InputDecoration(
                         labelText: "Username",
                       ),

@@ -25,7 +25,7 @@ class _AuthScreenState extends State<AuthScreen> {
     bool isLogin,
     BuildContext ctx,
   }) async {
-    AuthResult authResult;
+    UserCredential authResult;
     try {
       setState(() {
         _isLoading = true;
@@ -42,19 +42,29 @@ class _AuthScreenState extends State<AuthScreen> {
           password: password,
         );
 
-        ////// .......... Image upload
-        final StorageReference ref = FirebaseStorage.instance
+        ////// .......... Image upload /////// old version
+        // final StorageReference ref = FirebaseStorage.instance
+        //     .ref()
+        //     .child('user_images')
+        //     .child(authResult.user.uid + '.jpg');
+        // await ref.putFile(userImage).onComplete;
+        // final url = ( await ref.getDownloadURL()).toString() ;
+        // // print(url);
+
+        ////////////Image upload
+        final Reference ref = FirebaseStorage.instance
             .ref()
             .child('user_images')
             .child(authResult.user.uid + '.jpg');
-        await ref.putFile(userImage).onComplete;
-        final url = ( await ref.getDownloadURL()).toString() ;
+        // await ref.putFile(userImage).onComplete;
+        UploadTask uploadTask = ref.putFile(userImage);
+        final url = (await ref.getDownloadURL()).toString();
         // print(url);
 
-        await Firestore.instance
+        await FirebaseFirestore.instance
             .collection('users')
-            .document(authResult.user.uid)
-            .setData({
+            .doc(authResult.user.uid)
+            .set({
           'username': username,
           'email': email,
           'image_url': url,
